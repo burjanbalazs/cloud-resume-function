@@ -15,12 +15,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     table_name = "Visitors"
     query_filter = "PartitionKey eq '1'"
     table_service = TableService(endpoint_suffix = "table.cosmos.azure.com", connection_string= cosmosdb_connection_string)
-    entities = table_service.query_entities(table_name=table_name, filter=query_filter)
+    entity = table_service.query_entities(table_name=table_name, filter=query_filter)
+    
+    entity['VisitorCount'].value = entity['VisitorCount'].value + 1
+    table_service.update_entity(table_name=table_name, entity=entity)
 
-    for entity in entities:
-        count = entity['VisitorCount'].value
 
-
+    count = entity['VisitorCount'].value
     return func.HttpResponse(
             f"{count}",
             status_code=200
